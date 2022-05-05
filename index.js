@@ -17,12 +17,27 @@ async function run() {
         await client.connect();
         const inventoryCollection = client.db('gymActive').collection('inventory');
 
-        // Get Service
+        // Get Inventory
         app.get('/inventory', async(req, res) => {
             const query = {};
             const inventory = await inventoryCollection.find(query).toArray();
             res.send(inventory);
         });
+
+        // Get Inventory by ID
+        app.get('/inventory/:inventoryId', async(req, res) => {
+            const id = req.params.inventoryId;
+            const query = {_id: ObjectId(id)};
+            const inventory = await inventoryCollection.findOne(query);
+            res.send(inventory);
+        })
+
+        // Post a new Inventory
+        app.post('/inventory', async(req, res) => {
+            const newInventory = req.body;
+            const result = await inventoryCollection.insertOne(newInventory);
+            res.send(result);
+        })
     }
     finally {}
 }
