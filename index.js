@@ -16,6 +16,7 @@ async function run() {
     try {
         await client.connect();
         const inventoryCollection = client.db('gymActive').collection('inventory');
+        const newInventory = client.db('gymActive').collection('newInventory');
 
         // Get Inventory
         app.get('/inventory', async(req, res) => {
@@ -46,6 +47,13 @@ async function run() {
             const result = await inventoryCollection.deleteOne(query);
             res.send(result);
         })
+
+        // New Inventory Collection
+        app.post('/new', async (req, res) => {
+            const newInventory = req.body;
+            const result = await newInventory.insertOne(newInventory);
+            res.send(result);
+        });
     }
     finally {}
 }
