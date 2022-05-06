@@ -16,7 +16,7 @@ async function run() {
     try {
         await client.connect();
         const inventoryCollection = client.db('gymActive').collection('inventory');
-        const newInventory = client.db('gymActive').collection('newInventory');
+        const newInventoryCollection = client.db('gymActive').collection('newInventory');
 
         // Get Inventory
         app.get('/inventory', async(req, res) => {
@@ -49,9 +49,17 @@ async function run() {
         })
 
         // New Inventory Collection
-        app.post('/new', async (req, res) => {
+        app.get('/newitems', async (req, res) => { 
+            const email = req.query.email;
+            console.log(email);
+            const query = {email: email};
+            const newInventory = await newInventoryCollection.find(query).toArray(); 
+            res.send(newInventory);
+        });
+
+        app.post('/newitems', async(req, res) => {
             const newInventory = req.body;
-            const result = await newInventory.insertOne(newInventory);
+            const result = await newInventoryCollection.insertOne(newInventory);
             res.send(result);
         });
     }
