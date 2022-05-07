@@ -51,7 +51,6 @@ async function run() {
         // New Inventory Collection
         app.get('/newitems', async (req, res) => { 
             const email = req.query.email;
-            console.log(email);
             const query = {email: email};
             const newInventory = await newInventoryCollection.find(query).toArray(); 
             res.send(newInventory);
@@ -62,6 +61,22 @@ async function run() {
             const result = await newInventoryCollection.insertOne(newInventory);
             res.send(result);
         });
+
+        // Delete a New Inventory Items
+        app.delete('/newitems/:newitemsId', async (req, res) => {
+            const id = req.params.newitemsId;
+            const query = { _id: ObjectId(id) };
+            const result = await newInventoryCollection.deleteOne(query);
+            res.send(result);
+        })
+
+        // Get New Inventory Items by ID
+        app.get('/newitems/:newitemsId', async (req, res) => {
+            const id = req.params.newitemsId;
+            const query = { _id: ObjectId(id) };
+            const result = await newInventoryCollection.findOne(query);
+            res.send(result);
+        })
 
         // Get Quantity
         app.put('/update-quantity/:id', async (req, res) => {
