@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const port = process.env.PORT || 5000;
 
@@ -18,45 +19,54 @@ async function run() {
         const inventoryCollection = client.db('gymActive').collection('inventory');
         const newInventoryCollection = client.db('gymActive').collection('newInventory');
 
+        // Authentication
+        app.post('/login', (req, res) => {
+            const { username } = req.body;
+            const accessToken = jwt.sign({ username }, process.env.ACCESS_TOKEN_SECRET, {
+                expiresIn: '1d'
+            });
+            res.send({ accessToken });
+        });
+
         // Get Inventory
-        app.get('/inventory', async(req, res) => {
+        app.get('/inventory', async (req, res) => {
             const query = {};
             const inventory = await inventoryCollection.find(query).toArray();
             res.send(inventory);
         });
 
         // Get Inventory by ID
-        app.get('/inventory/:inventoryId', async(req, res) => {
+        app.get('/inventory/:inventoryId', async (req, res) => {
             const id = req.params.inventoryId;
-            const query = {_id: ObjectId(id)};
+            const query = { _id: ObjectId(id) };
             const inventory = await inventoryCollection.findOne(query);
             res.send(inventory);
         });
 
         // Post a new Inventory
-        app.post('/inventory', async(req, res) => {
+        app.post('/inventory', async (req, res) => {
             const newInventory = req.body;
             const result = await inventoryCollection.insertOne(newInventory);
             res.send(result);
         });
 
         // Delete a Inventory
-        app.delete('/inventory/:inventoryId', async(req, res) => {
+        app.delete('/inventory/:inventoryId', async (req, res) => {
             const id = req.params.inventoryId;
-            const query = {_id: ObjectId(id)};
+            const query = { _id: ObjectId(id) };
             const result = await inventoryCollection.deleteOne(query);
             res.send(result);
         })
 
         // New Inventory Collection
-        app.get('/newitems', async (req, res) => { 
+        app.get('/newitems', async (req, res) => {
             const email = req.query.email;
-            const query = {email: email};
-            const newInventory = await newInventoryCollection.find(query).toArray(); 
+            const query = { email: email };
+            const newInventory = await newInventoryCollection.find(query).toArray();
             res.send(newInventory);
         });
 
-        app.post('/newitems', async(req, res) => {
+        app.post('/newitems', async (req, res) => {
             const newInventory = req.body;
             const result = await newInventoryCollection.insertOne(newInventory);
             res.send(result);
@@ -94,7 +104,7 @@ async function run() {
             res.send(result);
         })
     }
-    finally {}
+    finally { }
 }
 run().catch(console.dir);
 
